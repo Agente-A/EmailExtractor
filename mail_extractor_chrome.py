@@ -1,8 +1,8 @@
 
 from selenium.webdriver import Chrome
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.ui import WebDriverWait
 from time import sleep
-from sys import exit
 import os
 import requests
 import json
@@ -16,8 +16,8 @@ class WebBot():
     def login(self):
         
         self.driver.get("https://adfs.inacap.cl/adfs/ls/?wtrealm=https://siga.inacap.cl/sts/&wa=wsignin1.0&wreply=https://siga.inacap.cl/sts/&wctx=https%3a%2f%2fadfs.inacap.cl%2fadfs%2fls%2f%3fwreply%3dhttps%3a%2f%2fwww.inacap.cl%2ftportalvp%2fintranet-alumno%26wtrealm%3dhttps%3a%2f%2fwww.inacap.cl%2f")
-        sleep(3)
-
+        
+        el = WebDriverWait(self.driver, timeout=30).until(lambda d: d.find_element_by_xpath('//*[@id="userNameInput"]'))
         inputUsr = self.driver.find_element_by_xpath('//*[@id="userNameInput"]')
         inputUsr.send_keys(username)
 
@@ -29,19 +29,22 @@ class WebBot():
         sleep(10)
 
     def getSede(self):
+
+        el = WebDriverWait(self.driver, timeout=30).until(lambda d: d.find_element_by_xpath('/html/body/div[1]/div/section[3]/div[1]/ul/li[3]/a'))
         self.driver.find_element_by_xpath('/html/body/div[1]/div/section[3]/div[1]/ul/li[3]/a').click()
         sleep(3)
         self.driver.switch_to.window(self.driver.window_handles[1])
-        sleep(10)
+
+        el = WebDriverWait(self.driver, timeout=30).until(lambda d: d.find_element_by_xpath('/html/body/div[2]/div[2]/div/div/section/div/div/aside/aside[2]/div/div/div[1]/ul/li[2]/a'))
         self.driver.find_element_by_xpath('/html/body/div[2]/div[2]/div/div/section/div/div/aside/aside[2]/div/div/div[1]/ul/li[2]/a').click()
-        sleep(3)
+        
+        el = WebDriverWait(self.driver, timeout=30).until(lambda d: d.find_elements_by_css_selector('div.media'))
         clases = self.driver.find_elements_by_css_selector('div.media')
         for x in clases:
             sede = x.find_element_by_tag_name('a').text
             match = re.search('Santiago Centro', sede)
             if match:
                 print('Sede: ' + match.group())
-                input('Pulse una tecla para continuar...')
                 self.driver.close()
                 self.driver.switch_to.window(self.driver.window_handles[0])
                 return
@@ -50,28 +53,32 @@ class WebBot():
         self.driver.switch_to.window(self.driver.window_handles[0])
         self.driver.close()
         input('Pulse una tecla para finalizar')
-        exit()
+        raise SystemExit
 
     def getCarrera(self):
-        sleep(1)
+        
+        el = WebDriverWait(self.driver, timeout=30).until(lambda d: d.find_element_by_xpath('//*[@id="t1_contenido"]'))
         cont = self.driver.find_element_by_xpath('//*[@id="t1_contenido"]')
         carrera = cont.find_element_by_tag_name('h3')
         print('La carrera es: ' + carrera.text)
         if carrera.text == 'Ingeniería en Informática' or carrera.text == 'Analista Programador':
             print('Usted es de la carrera c:')
-            input('Presione una tecla para continuar')
             return
         print('Usted no es de la carrera :c')
         self.driver.close()
         input('Pulse una tecla para finalizar')
-        exit()
+        raise SystemExit
 
     def getRamos(self):
+        
+        el = WebDriverWait(self.driver, timeout=30).until(lambda d: d.find_element_by_link_text('Mi Malla'))
         self.driver.find_element_by_link_text('Mi Malla').click()
         sleep(3)
         self.driver.switch_to.window(self.driver.window_handles[1])
         pattern = re.compile('^TI[a-zA-Z0-9]*')
         ti = []
+
+        el = WebDriverWait(self.driver, timeout=30).until(lambda d: d.find_elements_by_css_selector('div.card'))
         clases = self.driver.find_elements_by_css_selector('div.card')
         for x in clases:
             match = pattern.match(x.find_element_by_tag_name('p').text)
@@ -79,7 +86,6 @@ class WebBot():
                 name = x.find_element_by_tag_name('h5').text
                 print(name)
                 ti.append(name)
-        input('Pulse una tecla para continuar...')
         self.driver.close()
         self.driver.switch_to.window(self.driver.window_handles[0])
         return ti
@@ -88,25 +94,32 @@ class WebBot():
 
         lista = {}
 
+        el = WebDriverWait(self.driver, timeout=30).until(lambda d: d.find_element_by_xpath('/html/body/div/div/section[3]/div[1]/div[1]/div[1]/h5'))
         self.driver.find_element_by_xpath('/html/body/div/div/section[3]/div[1]/div[1]/div[1]/h5').click()
-        sleep(2)
+        sleep(1)
+        el = WebDriverWait(self.driver, timeout=30).until(lambda d: d.find_element_by_xpath('/html/body/div/div/section[3]/div[1]/div[1]/div[1]/ul/li[4]/a'))
         self.driver.find_element_by_xpath('/html/body/div/div/section[3]/div[1]/div[1]/div[1]/ul/li[4]/a').click()
+        
         sleep(3)
 
         self.driver.switch_to.window(self.driver.window_handles[1]) 
         
         # entrar a curso
+        el = WebDriverWait(self.driver, timeout=30).until(lambda d: d.find_elements_by_class_name('curso'))
         cursos = self.driver.find_elements_by_class_name('curso') 
         for curso in cursos:
             if curso.text in ti:
                 print('\n' + curso.text)
+                el = WebDriverWait(self.driver, timeout=30).until(lambda d: curso.find_element_by_tag_name('a'))
                 curso.find_element_by_tag_name('a').click()
-                sleep(1)
+                
+                el = WebDriverWait(self.driver, timeout=30).until(lambda d: d.find_element_by_xpath('/html/body/form/div[4]/div[3]/div/div/div/div[2]/div/div/div[1]/div[2]/label/select'))
                 cb = Select(self.driver.find_element_by_xpath('/html/body/form/div[4]/div[3]/div/div/div/div[2]/div/div/div[1]/div[2]/label/select'))
                 cb.select_by_visible_text('100')
-                sleep(2)
 
                 # sacar lista de alumnos
+                sleep(2)
+                el = WebDriverWait(self.driver, timeout=30).until(lambda d: d.find_elements_by_css_selector('td.sorting_1'))
                 nom = self.driver.find_elements_by_css_selector('td.sorting_1')
                 mails = self.driver.find_elements_by_css_selector('td.curso')
                 
@@ -120,7 +133,7 @@ class WebBot():
                     lista[x] = {'name' : nom[x].text, 'email' : mails[x].text}
                     print('nombre: ' + nom[x].text + '\tCorreo: '+ mails[x].text + '\n') #cambiar por output de correos
                 self.driver.find_element_by_xpath('//*[@id="btnVolver"]').click()
-                sleep(2)
+                sleep(1)
         self.driver.close()
         self.driver.switch_to.window(self.driver.window_handles[0])
         return lista
@@ -139,7 +152,7 @@ password = input('Introduce tu contraseña:\n')
 url = ''
 os.system('cls')
 bot = WebBot()
-input('Por favor, máximiza la ventana del navegador\nPulsa una tecla para continuar...')
+bot.driver.set_window_size(1303,784)
 bot.login()
 bot.getSede()
 bot.getCarrera()
@@ -148,4 +161,4 @@ alumnos = bot.goToEmail(ti)
 sendData(alumnos, url)
 bot.driver.close()
 input('Presione una tecla para finalizar o cierra la ventana si no quiere terminar')
-exit()
+raise SystemExit
