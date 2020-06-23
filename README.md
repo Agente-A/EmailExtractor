@@ -12,7 +12,7 @@ En otras palabras, este programa **solo ejecuta las mismas acciones** que un est
 Si aún así sientes desconfianza de que podamos estar almacenando información sensible, eres libre de explorar el código y hacernoslo llegar (contacto al final de la página).
 
 ## Aclaración
-Debes descargar la versión compilada desde [aquí](#), si clonas este repositorio no funcionará porque no tiene añadidas las conexiones a la base de datos.
+Debes descargar la versión compilada desde [aquí](https://github.com/Agente-A/EmailExtractor/releases/tag/v1.0), si clonas este repositorio no funcionará porque no tiene añadidas las conexiones a la base de datos.
 
 ## Contacto:
  * ceiiapsantiagocentro@gmail.com
